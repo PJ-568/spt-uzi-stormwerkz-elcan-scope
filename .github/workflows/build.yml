@@ -45,9 +45,11 @@ jobs:
           cp bin/Release/UziStormwerkzElcanScope.dll "$STAGE/SPT/user/mods/UziStormwerkzElcanScope/"
           cd "$STAGE"
           ZIP_NAME="UziStormwerkzElcanScope-V${VER}.zip"
+          mkdir -p ../dist
           zip -r "../dist/${ZIP_NAME}" SPT
           cd ..
           echo "Packed dist/${ZIP_NAME}"
+          ls -lh dist/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
