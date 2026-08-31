@@ -16,16 +16,32 @@ SPT 4.x（ServerMod，C#）插件：让 UZI StormWerkz 瞄具基座（顶盖导�
 
 ## 构建
 
-需要本机 `dotnet`（net9.0 目标）。引用集 `ref/` 里的 SPT 程序集需从服务端拷贝（已被 `.gitignore` 排除，需自行准备）：
+需要本机 `dotnet`（net9.0 目标）。依赖通过 NuGet 拉取（`SPTarkov.Server.Core` / `SPTarkov.DI` / `SPTarkov.Common`，版本对齐服务端 4.0.13），**无需本地 SPT dll**：
 
 ```bash
-# 从服务端拷贝引用集到 ref/（服务端通过 k9-eth.sh 访问）
-mkdir -p ref && k9-eth.sh 'cd ~/.local/bin/aki/SPT && tar cf - SPTarkov.Server.Core.dll SPTarkov.DI.dll SPTarkov.Common.dll SemanticVersioning.dll SPT.Server.dll' | tar xf - -C ref/
-
+dotnet restore
 dotnet build -c Release
 ```
 
 产物：`bin/Release/UziStormwerkzElcanScope.dll`。
+
+## 自动发布（GitHub Actions）
+
+`.github/workflows/build.yml` 在推送 `v*` 标签或手动触发时自动构建，并把 dll 按游戏根目录结构打成 zip：
+
+```
+UziStormwerkzElcanScope-V{版本}.zip
+└── SPT
+    └── user
+        └── mods
+            └── UziStormwerkzElcanScope
+                └── UziStormwerkzElcanScope.dll
+```
+
+- 上传该 zip 为 workflow artifact
+- 创建一个 GitHub Release 并把 zip 作为附件（仅 tag 触发）
+
+`Version`（csproj）与标签保持一致（如 `v1.0.0` 对应 `<Version>1.0.0</Version>`）。解压 zip 到游戏根目录（与服务端 `user/mods/` 平级）即可。
 
 ## 部署
 

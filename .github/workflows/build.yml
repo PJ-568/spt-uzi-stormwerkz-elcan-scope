@@ -1,0 +1,63 @@
+name: Build Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build -c Release --no-restore
+
+      - name: Validate build output
+        run: |
+          test -f bin/Release/UziStormwerkzElcanScope.dll || exit 1
+          echo "Built UziStormwerkzElcanScope.dll"
+
+      - name: Compute mod version
+        id: version
+        run: |
+          VER=$(grep -oP '(?<=<Version>)[^<]+' UziStormwerkzElcanScope.csproj)
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+
+      - name: Package mod as SPT-ready zip
+        run: |
+          VER="${{ steps.version.outputs.version }}"
+          STAGE="staging"
+          mkdir -p "$STAGE/SPT/user/mods/UziStormwerkzElcanScope"
+          cp bin/Release/UziStormwerkzElcanScope.dll "$STAGE/SPT/user/mods/UziStormwerkzElcanScope/"
+          cd "$STAGE"
+          ZIP_NAME="UziStormwerkzElcanScope-V${VER}.zip"
+          zip -r "../dist/${ZIP_NAME}" SPT
+          cd ..
+          echo "Packed dist/${ZIP_NAME}"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: UziStormwerkzElcanScope-V${{ steps.version.outputs.version }}
+          path: dist/*.zip
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.zip
+          generate_release_notes: true
