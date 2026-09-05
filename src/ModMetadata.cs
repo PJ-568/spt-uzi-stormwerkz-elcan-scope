@@ -6,39 +6,33 @@ using Rng = SemanticVersioning.Range;
 namespace Xidong.UZI.ELCAN;
 
 /// <summary>
-/// 元数据：SPT 4.x 借此识别本 mod（版本取自程序集版本号，SptVersion 与目标服务端匹配）。
+/// 元数据：SPT 4.1.x 借此识别本 mod（版本取自程序集版本号）。
+/// 4.1.x 把旧的 AbstractModMetadata 抽象类替换为 IModMetadata 接口，
+/// 并删除了 IsBundleMod（bundles 通过 bundles.json 自动加载），
+/// 新增 HasPrepatcher 字段；License 收紧为非空。
 /// </summary>
-public record UziStormwerkzElcanScopeMetadata : AbstractModMetadata
+public class UziStormwerkzElcanScopeMetadata : IModMetadata
 {
-    public override string ModGuid { get; init; }
+    public string ModGuid { get; init; } = "com.xidong.uzi.elcan.scope";
 
-    public override string Name { get; init; }
+    public string Name { get; init; } = "UziStormwerkzElcanScope";
 
-    public override string Author { get; init; }
+    public string Author { get; init; } = "xidong";
 
-    public override List<string>? Contributors { get; init; }
+    public List<string>? Contributors { get; init; }
 
-    public override Ver Version { get; init; }
+    public Ver Version { get; init; } =
+        new(typeof(UziStormwerkzElcanScopeMetadata).Assembly.GetName().Version?.ToString(3) ?? "2.0.0");
 
-    public override Rng SptVersion { get; init; }
+    public Rng SptVersion { get; init; } = new("~4.1.0");
 
-    public override List<string>? Incompatibilities { get; init; }
+    public bool HasPrepatcher { get; init; } = false;
 
-    public override Dictionary<string, Rng>? ModDependencies { get; init; }
+    public List<string>? Incompatibilities { get; init; }
 
-    public override string? Url { get; init; }
+    public Dictionary<string, Rng>? ModDependencies { get; init; }
 
-    public override bool? IsBundleMod { get; init; }
+    public string? Url { get; init; }
 
-    public override string License { get; init; }
-
-    public UziStormwerkzElcanScopeMetadata()
-    {
-        ModGuid = "com.xidong.uzi.elcan.scope";
-        Name = "UziStormwerkzElcanScope";
-        Author = "xidong";
-        Version = new Ver(typeof(UziStormwerkzElcanScopeMetadata).Assembly.GetName().Version?.ToString(3), false);
-        SptVersion = new Rng("~4.0.13", false);
-        License = "MIT";
-    }
+    public string License { get; init; } = "MIT";
 }
