@@ -48,7 +48,7 @@ dotnet build -c Release
 
 ```
 UziStormwerkzElcanScope-V{版本}.zip
-└── SPT
+└── SPT_Runtime                  # SPT 4.1.x：mod 根目录从 SPT/ 改为 SPT_Runtime/
     └── user
         └── mods
             └── UziStormwerkzElcanScope
@@ -58,7 +58,7 @@ UziStormwerkzElcanScope-V{版本}.zip
 - 上传该 zip 为 workflow artifact
 - 创建一个 GitHub Release 并把 zip 作为附件（仅 tag 触发）
 
-`Version`（csproj）与标签保持一致（如 `v2.0.0` 对应 `<Version>2.0.0</Version>`）。解压 zip 到游戏根目录（与服务端 `user/mods/` 平级）即可。
+`Version`（csproj）与标签保持一致（如 `v2.0.0` 对应 `<Version>2.0.0</Version>`）。解压 zip 到游戏根目录（让 `SPT_Runtime/user/mods/UziStormwerkzElcanScope/` 与服务端 mod 根目录平级）即可。
 
 ## 部署
 

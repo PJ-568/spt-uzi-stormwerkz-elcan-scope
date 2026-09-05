@@ -41,12 +41,13 @@ jobs:
         run: |
           VER="${{ steps.version.outputs.version }}"
           STAGE="staging"
-          mkdir -p "$STAGE/SPT/user/mods/UziStormwerkzElcanScope"
-          cp bin/Release/UziStormwerkzElcanScope.dll "$STAGE/SPT/user/mods/UziStormwerkzElcanScope/"
+          # 4.1.x 把 mod 根目录从 SPT/ 改为 SPT_Runtime/，且新数据不向后兼容。
+          mkdir -p "$STAGE/SPT_Runtime/user/mods/UziStormwerkzElcanScope"
+          cp bin/Release/UziStormwerkzElcanScope.dll "$STAGE/SPT_Runtime/user/mods/UziStormwerkzElcanScope/"
           cd "$STAGE"
           ZIP_NAME="UziStormwerkzElcanScope-V${VER}.zip"
           mkdir -p ../dist
-          zip -r "../dist/${ZIP_NAME}" SPT
+          zip -r "../dist/${ZIP_NAME}" SPT_Runtime
           cd ..
           echo "Packed dist/${ZIP_NAME}"
           ls -lh dist/
