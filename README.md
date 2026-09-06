@@ -16,21 +16,6 @@ SPT 4.1.x（ServerMod，C#）插件：
 | ELCAN SpecterDR 1x/4x FDE | `57aca93d2459771f2c7e26db` | mod_scope 槽允许的瞄具 |
 | CR 200DS（Chiappa Rhino 200DS 9x19 revolver） | `624c2e8614da335f1e034d8c` | 目标武器（仅作为槽位承载者） |
 
-## SPT 4.1.x 兼容要点
-
-| API | 4.0.13 | 4.1.x |
-| --- | --- | --- |
-| `IOnLoad` 方法签名 | `Task OnLoad()` | `Task OnLoadAsync(CancellationToken)` |
-| 读取 items 数据库 | 注入 `DatabaseService.GetItems()` | 注入 `TemplateTable` Singleton（启动器在 host build 前 `AddSingleton(databaseTables.Templates)`） |
-| `IModMetadata` | `AbstractModMetadata` 抽象类 + `IsBundleMod` | `IModMetadata` 接口 + `HasPrepatcher`，`License` 非空 |
-| `[Injectable]` 第二参 | `Type? typeOverride` | 已删除（只剩 `InjectionType` + `TypePriority`） |
-| `OnLoadOrder` 常量 | 旧值 | `Preload = 100000`、`GameCallbacks = 200000` 等 |
-| `ISptLogger<T>` 命名空间 | `SPTarkov.Server.Core.Models.Utils` | `SPTarkov.Common.Models.Logging` |
-| .NET 目标框架 | `net9.0` | `net10.0` |
-| NuGet 包版本 | `4.0.13` | `4.1.2`（公开最高 tag，4.1.3/4.1.4/4.1.5 未发布公开 tag） |
-
-构建时引用 `SPTarkov.Server.Core 4.1.2`、运行于 4.1.5 服务端：服务端 mod 加载器使用 `ModValidator.ValidateCoreAssemblyReference`（截末两字符 + 单参 `Version` 构造）做版本校验，4.1.2 编译产物在 4.1.5 宿主下可被接受。
-
 ## 构建
 
 需要本机 `dotnet`（net10.0 目标）。依赖通过 NuGet 拉取（`SPTarkov.Server.Core` / `SPTarkov.DI` / `SPTarkov.Common`，版本对齐服务端 4.1.2），**无需本地 SPT dll**：
@@ -48,7 +33,7 @@ dotnet build -c Release
 
 ```
 UziStormwerkzElcanScope-V{版本}.zip
-└── SPT_Runtime                  # SPT 4.1.x：mod 根目录从 SPT/ 改为 SPT_Runtime/
+└── SPT_Runtime
     └── user
         └── mods
             └── UziStormwerkzElcanScope
@@ -78,7 +63,3 @@ systemctl --user restart pj568-spt-server
 [Info][Xidong.UZI.ELCAN.UziStormwerkzElcanScopePlugin] UziStormwerkzElcanScope: added '57aca93d2459771f2c7e26db' to slot 'mod_scope' ...
 [Info][Xidong.UZI.ELCAN.UziStormwerkzElcanScopePlugin] UziStormwerkzElcanScope: added '6698c90829e062525d0ad8ad' to slot 'mod_sight_front' (Chiappa Rhino 200DS 9x19 revolver)
 ```
-
-## 已知问题
-
-- **CR 200DS mod_sight_front 兼容性差**：`mod_sight_front` 是前准星槽（默认装 Chiappa Rhino 家族准星），UZI StormWerkz 顶盖（接收器挂件）按字面加入 Filter 白名单后，客户端能装上但游戏内没有适配的 3D 装配模型/动画。该功能是按用户需求「字面照搬」实现，不建议在正式游戏里实际装备，仅保证 mod 行为可控（启动可逆、幂等、不会破坏其他数据）。

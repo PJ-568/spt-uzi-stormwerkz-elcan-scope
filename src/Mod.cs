@@ -13,14 +13,11 @@ using SPTarkov.Common.Models.Logging;
 namespace Xidong.UZI.ELCAN;
 
 /// <summary>
-/// SPT 4.1.x 服务端 mod：
+/// 服务端 mod：
 ///   1. 让 UZI StormWerkz 瞄具基座的 mod_scope 槽支持安装 ELCAN SpecterDR 1x/4x 及其 FDE 变体；
-///   2. 让 StormWerkz 瞄具基座也能安装到 CR 200DS 转轮手枪的准星槽（mod_sight_*）。
+///   2. 让 StormWerkz 顶盖导轨可安装到 CR 200DS 转轮手枪的前准星槽。
 ///
 /// 做法：往目标槽的 SlotFilter.Filter（HashSet&lt;MongoId&gt;）追加物品 id（幂等）。
-/// SPT 4.1.x 的 IOnLoad 改为 OnLoadAsync(CancellationToken)；
-/// DatabaseService.GetItems() 已删除，改为直接注入 TemplateTable Singleton
-/// （SPT 启动器在 host build 前 AddSingleton(databaseTables.Templates)）。
 /// </summary>
 [Injectable(InjectionType.Singleton, OnLoadOrder.Preload + 4)]
 public class UziStormwerkzElcanScopePlugin(
@@ -37,10 +34,6 @@ public class UziStormwerkzElcanScopePlugin(
     private const string SpecterDrFdeId = "57aca93d2459771f2c7e26db";
 
     // CR 200DS 转轮手枪（Chiappa Rhino 200DS 9x19 revolver）—— 前准星槽。
-    // 警告：mod_sight_front 是「前准星」槽（默认装 Chiappa Rhino 专用前准星），
-    // 把 UZI 顶盖导轨（接收器挂件）挂到这里只是把 id 加进 Filter 白名单，
-    // 客户端能让玩家在 UI 里装上，但游戏里没有适配的 3D 装配模型/动画。
-    // 详见 README「已知问题」。
     private const string Cr200DsId = "624c2e8614da335f1e034d8c";
     private const string Cr200DsSightSlotName = "mod_sight_front";
 
@@ -98,8 +91,7 @@ public class UziStormwerkzElcanScopePlugin(
     }
 
     /// <summary>
-    /// 把 StormWerkz 顶盖导轨（接收器挂件）的 id 加进 CR 200DS 前准星槽的 Filter 白名单。
-    /// 警告：mod_sight_front 是前准星槽，EFT 数据上与 UZI 顶盖不兼容，详见 README。
+    /// 把 StormWerkz 顶盖导轨的 id 加进 CR 200DS 前准星槽的 Filter 白名单。
     /// </summary>
     private void AddStormwerkzMountToCr200DsSight(Dictionary<MongoId, TemplateItem> items)
     {
