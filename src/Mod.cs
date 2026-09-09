@@ -15,7 +15,8 @@ namespace Xidong.UZI.ELCAN;
 /// <summary>
 /// 服务端 mod：
 ///   1. 让 UZI StormWerkz 瞄具基座的 mod_scope 槽支持安装 ELCAN SpecterDR 1x/4x 及其 FDE 变体；
-///   2. 让 StormWerkz 顶盖导轨可安装到 CR 200DS 转轮手枪的前准星槽。
+///   2. 让 StormWerkz 顶盖导轨可安装到 CR 200DS 转轮手枪的前准星槽；
+///   3. 让 CR 200DS 的前准星槽支持安装 MP-18 瞄具基座。
 ///
 /// 做法：往目标槽的 SlotFilter.Filter（HashSet&lt;MongoId&gt;）追加物品 id（幂等）。
 /// </summary>
@@ -37,6 +38,9 @@ public class UziStormwerkzElcanScopePlugin(
     private const string Cr200DsId = "624c2e8614da335f1e034d8c";
     private const string Cr200DsSightSlotName = "mod_sight_front";
 
+    // MP-18 瞄具基座
+    private const string Mp18ScopeBaseId = "61f804acfcba9556ea304cb8";
+
     public Task OnLoadAsync(CancellationToken cancellationToken)
     {
         try
@@ -46,7 +50,7 @@ public class UziStormwerkzElcanScopePlugin(
             Dictionary<MongoId, TemplateItem> items = templateTable.Items;
 
             AddScopesToStormwerkzMount(items);
-            AddStormwerkzMountToCr200DsSight(items);
+            AddMountsToCr200DsSight(items);
         }
         catch (Exception ex)
         {
@@ -91,9 +95,9 @@ public class UziStormwerkzElcanScopePlugin(
     }
 
     /// <summary>
-    /// 把 StormWerkz 顶盖导轨的 id 加进 CR 200DS 前准星槽的 Filter 白名单。
+    /// 把 StormWerkz 顶盖导轨和 MP-18 瞄具基座的 id 加进 CR 200DS 前准星槽的 Filter 白名单。
     /// </summary>
-    private void AddStormwerkzMountToCr200DsSight(Dictionary<MongoId, TemplateItem> items)
+    private void AddMountsToCr200DsSight(Dictionary<MongoId, TemplateItem> items)
     {
         if (!items.TryGetValue(Cr200DsId, out TemplateItem? revolver))
         {
@@ -119,6 +123,7 @@ public class UziStormwerkzElcanScopePlugin(
             foreach (SlotFilter filter in filters)
             {
                 AddToFilter(filter, StormwerkzTopCoverRailId, revolver, slot);
+                AddToFilter(filter, Mp18ScopeBaseId, revolver, slot);
             }
         }
     }
