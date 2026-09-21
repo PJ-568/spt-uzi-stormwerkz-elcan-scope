@@ -14,7 +14,8 @@ namespace Xidong.UZI.ELCAN;
 
 /// <summary>
 /// 服务端 mod：
-///   1. 让 UZI StormWerkz 瞄具基座的 mod_scope 槽支持安装 ELCAN SpecterDR 1x/4x 及其 FDE 变体；
+///   1. 让 UZI StormWerkz 瞄具基座的 mod_scope 槽支持安装 ELCAN SpecterDR 1x/4x 及其 FDE 变体，
+///      以及 SIG Sauer BRAVO4 4x30 瞄准镜；
 ///   2. 让 StormWerkz 顶盖导轨可安装到 CR 200DS 转轮手枪的前准星槽；
 ///   3. 让 CR 200DS 的前准星槽支持安装 MP-18 瞄具基座。
 ///
@@ -33,6 +34,9 @@ public class UziStormwerkzElcanScopePlugin(
     // ELCAN SpecterDR 1x/4x（黑）与 FDE 变体
     private const string SpecterDrId = "57ac965c24597706be5f975c";
     private const string SpecterDrFdeId = "57aca93d2459771f2c7e26db";
+
+    // SIG Sauer BRAVO4 4x30 瞄准镜
+    private const string Bravo4Id = "57adff4f24597737f373b6e6";
 
     // CR 200DS 转轮手枪（Chiappa Rhino 200DS 9x19 revolver）—— 前准星槽。
     private const string Cr200DsId = "624c2e8614da335f1e034d8c";
@@ -61,7 +65,7 @@ public class UziStormwerkzElcanScopePlugin(
     }
 
     /// <summary>
-    /// 往 UZI StormWerkz 顶盖导轨的 mod_scope 槽追加 SpecterDR 瞄具 id。
+    /// 往 UZI StormWerkz 顶盖导轨的 mod_scope 槽追加 SpecterDR 与 BRAVO4 瞄具 id。
     /// </summary>
     private void AddScopesToStormwerkzMount(Dictionary<MongoId, TemplateItem> items)
     {
@@ -90,6 +94,7 @@ public class UziStormwerkzElcanScopePlugin(
             {
                 AddToFilter(filter, SpecterDrId, mount, slot);
                 AddToFilter(filter, SpecterDrFdeId, mount, slot);
+                AddToFilter(filter, Bravo4Id, mount, slot);
             }
         }
     }

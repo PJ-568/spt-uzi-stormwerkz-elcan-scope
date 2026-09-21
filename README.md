@@ -2,7 +2,7 @@
 
 SPT 4.1.x（ServerMod，C#）插件：
 
-1. 让 UZI StormWerkz 瞄具基座（顶盖导轨）支持安装 ELCAN SpecterDR 1x/4x 瞄准镜及其 FDE 变体。
+1. 让 UZI StormWerkz 瞄具基座（顶盖导轨）支持安装 ELCAN SpecterDR 1x/4x 瞄准镜及其 FDE 变体，以及 SIG Sauer BRAVO4 4x30 瞄准镜。
 2. 把 UZI StormWerkz 顶盖导轨和 MP-18 瞄具基座的 id 加进 CR 200DS 转轮手枪的 `mod_sight_front` 前准星槽 Filter 白名单。
 
 ## 原理
@@ -15,6 +15,7 @@ SPT 4.1.x（ServerMod，C#）插件：
 | MP-18 瞄具基座 | `61f804acfcba9556ea304cb8` | CR 200DS `mod_sight_front` 白名单新增项；自身提供 `mod_scope` 槽 |
 | ELCAN SpecterDR 1x/4x | `57ac965c24597706be5f975c` | mod_scope 槽允许的瞄具 |
 | ELCAN SpecterDR 1x/4x FDE | `57aca93d2459771f2c7e26db` | mod_scope 槽允许的瞄具 |
+| SIG Sauer BRAVO4 4x30 瞄准镜 | `57adff4f24597737f373b6e6` | mod_scope 槽允许的瞄具 |
 | CR 200DS（Chiappa Rhino 200DS 9x19 revolver） | `624c2e8614da335f1e034d8c` | 目标武器（仅作为槽位承载者） |
 
 ## 构建
@@ -62,6 +63,7 @@ systemctl --user restart pj568-spt-server
 [Info][ModValidator] 模组：UziStormwerkzElcanScope ... 已加载
 [Info][Xidong.UZI.ELCAN.UziStormwerkzElcanScopePlugin] UziStormwerkzElcanScope: added '57ac965c24597706be5f975c' to slot 'mod_scope' ...
 [Info][Xidong.UZI.ELCAN.UziStormwerkzElcanScopePlugin] UziStormwerkzElcanScope: added '57aca93d2459771f2c7e26db' to slot 'mod_scope' ...
+[Info][Xidong.UZI.ELCAN.UziStormwerkzElcanScopePlugin] UziStormwerkzElcanScope: added '57adff4f24597737f373b6e6' to slot 'mod_scope' ...
 [Info][Xidong.UZI.ELCAN.UziStormwerkzElcanScopePlugin] UziStormwerkzElcanScope: added '6698c90829e062525d0ad8ad' to slot 'mod_sight_front' (Chiappa Rhino 200DS 9x19 revolver)
 [Info][Xidong.UZI.ELCAN.UziStormwerkzElcanScopePlugin] UziStormwerkzElcanScope: added '61f804acfcba9556ea304cb8' to slot 'mod_sight_front' (Chiappa Rhino 200DS 9x19 revolver)
 ```
