@@ -50,6 +50,45 @@ public class UziStormwerkzElcanScopePluginTests
     private const string HuxwrxHxQdId = "6a158e4abf497aade10030e0";
     private const string HuxwrxHxQdTanId = "6a1eb32c6cd328ea90037455";
 
+    private const string AimSportsTriRailId = "5bbdb811d4351e45020113c7";
+    private const string StormwerkzLowerHandguardRailId = "66992f7d9950f5f4cd0602a8";
+
+    // 与 src/Mod.cs 的 ZenitRkForegripIds 对应。
+    private static readonly string[] ZenitRkForegripIds =
+    [
+        "5c1bc4812e22164bef5cfde7",
+        "5c1bc5612e221602b5429350",
+        "5c1bc5af2e221602b412949b",
+        "5c1bc5fb2e221602b1779b32",
+        "5c1bc7432e221602b412949d",
+        "5c1bc7752e221602b1779b34",
+    ];
+
+    // 与 src/Mod.cs 的 AimSportsTriRailForegripIds 对应（不含 MP9 与 Steyr AUG）。
+    private static readonly string[] AimSportsTriRailForegripIds =
+    [
+        "5c1bc4812e22164bef5cfde7",
+        "5c1bc5612e221602b5429350",
+        "5c1bc5af2e221602b412949b",
+        "5c1bc5fb2e221602b1779b32",
+        "5c1bc7432e221602b412949d",
+        "5c1bc7752e221602b1779b34",
+        "5f6340d3ca442212f4047eb2",
+        "5c7fc87d2e221644f31c0298",
+        "5c87ca002e221600114cb150",
+        "5cda9bcfd7f00c0c0b53e900",
+        "5fc0f9b5d724d907e2077d82",
+        "5fc0f9cbd6fa9c00c571bb90",
+        "615d8fd3290d254f5e6b2edc",
+        "651a8bf3a8520e48047bf708",
+        "651a8e529829226ceb67c319",
+        "665d5d9e338229cfd6078da1",
+        "665edce564fb556f940ab32a",
+        "558032614bdc2de7118b4585",
+        "58c157be86f77403c74b2bb6",
+        "58c157c886f774032749fb06",
+    ];
+
     private static UziStormwerkzElcanScopePlugin BuildPlugin(Dictionary<MongoId, TemplateItem> items)
     {
         var logger = new Mock<ISptLogger<UziStormwerkzElcanScopePlugin>>();
@@ -189,6 +228,38 @@ public class UziStormwerkzElcanScopePluginTests
         Assert.Contains(new MongoId(HuxwrxHxQdTanId), dustCover.Properties!.ConflictingItems!);
         Assert.Contains(new MongoId(Ppsh41DustCoverId), black.Properties!.ConflictingItems!);
         Assert.Contains(new MongoId(Ppsh41DustCoverId), tan.Properties!.ConflictingItems!);
+    }
+
+    [Fact]
+    public async Task AddsForegripsToAimSportsTriRailFirstTacticalSlot()
+    {
+        var rail = ItemWithSlot("mount_mosin_aim_sports_tri_rail", "mod_tactical_000");
+        var items = new Dictionary<MongoId, TemplateItem> { [new MongoId(AimSportsTriRailId)] = rail };
+
+        await BuildPlugin(items).OnLoadAsync(CancellationToken.None);
+
+        var filter = FilterOf(rail, "mod_tactical_000");
+        Assert.Equal(AimSportsTriRailForegripIds.Length, filter.Count);
+        foreach (var id in AimSportsTriRailForegripIds)
+        {
+            Assert.Contains(new MongoId(id), filter);
+        }
+    }
+
+    [Fact]
+    public async Task AddsZenitRkForegripsToStormwerkzLowerHandguardRail()
+    {
+        var rail = ItemWithSlot("handguard_uzi_stormwerkz_lower_rail", "mod_tactical");
+        var items = new Dictionary<MongoId, TemplateItem> { [new MongoId(StormwerkzLowerHandguardRailId)] = rail };
+
+        await BuildPlugin(items).OnLoadAsync(CancellationToken.None);
+
+        var filter = FilterOf(rail, "mod_tactical");
+        Assert.Equal(ZenitRkForegripIds.Length, filter.Count);
+        foreach (var id in ZenitRkForegripIds)
+        {
+            Assert.Contains(new MongoId(id), filter);
+        }
     }
 
     [Fact]

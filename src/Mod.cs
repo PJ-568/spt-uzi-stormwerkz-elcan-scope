@@ -20,7 +20,9 @@ namespace Xidong.UZI.ELCAN;
 ///   3. 让 CR 200DS 的前准星槽支持安装 MP-18 瞄具基座；
 ///   4. 让 PPSh-41 冲锋枪的枪管槽支持安装莫辛纳甘的全部 4 种尺寸枪管；
 ///   5. 让 PPSh-41 冲锋枪的枪托槽支持安装 Benelli M3 可伸缩枪托、PKM / PKP 枪托、Ultima MP-155 塑料手枪式握把与 KS-23 金属枪托；
-///   6. 让 HUXWRX HX-QD 消音器（含黄褐色变体）与 PPSh-41 防尘盖互不兼容。
+///   6. 让 HUXWRX HX-QD 消音器（含黄褐色变体）与 PPSh-41 防尘盖互不兼容；
+///   7. 让 Aim Sports“三轨”莫辛步枪导轨的第一个战术配件槽（mod_tactical_000）支持安装多种前握把；
+///   8. 让 UZI StormWerkz 护木底轨的 mod_tactical 槽支持安装 Zenit RK 系列前握把。
 ///
 /// 做法：往目标槽的 SlotFilter.Filter（HashSet&lt;MongoId&gt;）追加物品 id（幂等）。
 /// </summary>
@@ -33,6 +35,7 @@ public class UziStormwerkzElcanScopePlugin(
     private const string SightSlotName = "mod_sight_front";
     private const string BarrelSlotName = "mod_barrel";
     private const string StockSlotName = "mod_stock";
+    private const string TacticalSlotName = "mod_tactical";
 
     // UZI StormWerkz 瞄具基座（顶盖导轨）
     private const string StormwerkzTopCoverRailId = "6698c90829e062525d0ad8ad";
@@ -74,6 +77,50 @@ public class UziStormwerkzElcanScopePlugin(
     private const string HuxwrxHxQdId = "6a158e4abf497aade10030e0";
     private const string HuxwrxHxQdTanId = "6a1eb32c6cd328ea90037455";
 
+    // Aim Sports“三轨”莫辛步枪导轨；只改第一个战术配件槽（mod_tactical_000）。
+    private const string AimSportsTriRailId = "5bbdb811d4351e45020113c7";
+    private const string AimSportsTriRailTacticalSlotName = "mod_tactical_000";
+    private const string AimSportsTriRailLabel = "Aim Sports tri-rail";
+
+    // UZI StormWerkz 护木底轨（mod_tactical 槽）。
+    private const string StormwerkzLowerHandguardRailId = "66992f7d9950f5f4cd0602a8";
+    private const string StormwerkzLowerHandguardLabel = "UZI StormWerkz lower handguard rail";
+
+    // Zenit RK 系列前握把。
+    private static readonly string[] ZenitRkForegripIds =
+    [
+        "5c1bc4812e22164bef5cfde7", // RK-0
+        "5c1bc5612e221602b5429350", // RK-1
+        "5c1bc5af2e221602b412949b", // RK-2
+        "5c1bc5fb2e221602b1779b32", // RK-4
+        "5c1bc7432e221602b412949d", // RK-5
+        "5c1bc7752e221602b1779b34", // RK-6
+    ];
+
+    // Aim Sports“三轨”第一个战术配件槽兼容的前握把（RK 系列见上）。
+    private static readonly string[] AimSportsTriRailForegripIds =
+    [
+        .. ZenitRkForegripIds,
+        // 镂空前握把
+        "5f6340d3ca442212f4047eb2", // Tactical Dynamics 镂空前握把
+        // 垂直前握把
+        "5c7fc87d2e221644f31c0298", // BCM GUNFIGHTER MOD 3 vertical
+        "5c87ca002e221600114cb150", // KAC vertical
+        "5cda9bcfd7f00c0c0b53e900", // ASh-12 vertical
+        "5fc0f9b5d724d907e2077d82", // A3 Tactical MVF001
+        "5fc0f9cbd6fa9c00c571bb90", // SIG Sauer vertical
+        "615d8fd3290d254f5e6b2edc", // Monstrum Tactical
+        "651a8bf3a8520e48047bf708", // Daniel Defense Enhanced M-LOK (Black)
+        "651a8e529829226ceb67c319", // Daniel Defense Enhanced M-LOK (Coyote Brown)
+        // BCM GUNFIGHTER MOD 3 M-LOK
+        "665d5d9e338229cfd6078da1", // (Black)
+        "665edce564fb556f940ab32a", // (FDE)
+        // TangoDown Stubby BGV-MK46K
+        "558032614bdc2de7118b4585", // (Black)
+        "58c157be86f77403c74b2bb6", // (FDE)
+        "58c157c886f774032749fb06", // (Stealth Grey)
+    ];
+
     // 日志中用于标识槽位承载者的短名。
     private const string MountLabel = "mount";
     private const string Cr200DsLabel = "CR 200DS";
@@ -101,6 +148,12 @@ public class UziStormwerkzElcanScopePlugin(
 
             // PPSh-41 防尘盖与 HUXWRX HX-QD 消音器互不兼容。
             AddDustCoverSuppressorConflict(items);
+
+            // Aim Sports“三轨”的第一个战术配件槽：追加多种前握把。
+            AddItemIdsToSlot(items, AimSportsTriRailId, AimSportsTriRailLabel, AimSportsTriRailTacticalSlotName, AimSportsTriRailForegripIds);
+
+            // UZI StormWerkz 护木底轨的 mod_tactical 槽：追加 Zenit RK 系列前握把。
+            AddItemIdsToSlot(items, StormwerkzLowerHandguardRailId, StormwerkzLowerHandguardLabel, TacticalSlotName, ZenitRkForegripIds);
         }
         catch (Exception ex)
         {
