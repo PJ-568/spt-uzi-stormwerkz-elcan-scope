@@ -35,6 +35,19 @@ dotnet build -c Release
 
 产物：`bin/Release/UziStormwerkzElcanScope.dll`。
 
+## 提交钩子
+
+仓库自带 `.githooks/`（`commit-msg` 提交信息语法 + 排版检查，`pre-commit` 暂存文件排版检查），源自模板 `~/模板/project-repo/`。克隆后启用：
+
+```bash
+git config core.hooksPath .githooks
+```
+
+- `scripts/check-grammar.mjs`：校验提交信息语法（`【类型，范围】摘要`）。
+- `autocorrect --lint`：校验汉字与英文、数字、符号间空格排版。
+
+绕过：`git commit --no-verify`。
+
 ## 自动发布（GitHub Actions）
 
 `.github/workflows/build.yml` 在推送 `v*` 标签或手动触发时自动构建，并把 dll 按游戏根目录结构打成 zip：
