@@ -18,7 +18,8 @@ namespace Xidong.UZI.ELCAN;
 ///      以及 SIG Sauer BRAVO4 4x30 瞄准镜；
 ///   2. 让 StormWerkz 顶盖导轨可安装到 CR 200DS 转轮手枪的前准星槽；
 ///   3. 让 CR 200DS 的前准星槽支持安装 MP-18 瞄具基座；
-///   4. 让 PPSh-41 冲锋枪的枪管槽支持安装莫辛纳甘的全部 4 种尺寸枪管。
+///   4. 让 PPSh-41 冲锋枪的枪管槽支持安装莫辛纳甘的全部 4 种尺寸枪管；
+///   5. 让 PPSh-41 冲锋枪的枪托槽支持安装 Benelli M3 可伸缩枪托、PKM / PKP 枪托、Ultima MP-155 塑料手枪式握把与 KS-23 金属枪托。
 ///
 /// 做法：往目标槽的 SlotFilter.Filter（HashSet&lt;MongoId&gt;）追加物品 id（幂等）。
 /// </summary>
@@ -30,6 +31,7 @@ public class UziStormwerkzElcanScopePlugin(
     private const string ScopeSlotName = "mod_scope";
     private const string SightSlotName = "mod_sight_front";
     private const string BarrelSlotName = "mod_barrel";
+    private const string StockSlotName = "mod_stock";
 
     // UZI StormWerkz 瞄具基座（顶盖导轨）
     private const string StormwerkzTopCoverRailId = "6698c90829e062525d0ad8ad";
@@ -47,7 +49,7 @@ public class UziStormwerkzElcanScopePlugin(
     // MP-18 瞄具基座
     private const string Mp18ScopeBaseId = "61f804acfcba9556ea304cb8";
 
-    // PPSh-41 冲锋枪 —— 枪管槽。
+    // PPSh-41 冲锋枪（承载枪管槽与枪托槽）。
     private const string Ppsh41Id = "5ea03f7400685063ec28bfa8";
 
     // 莫辛纳甘枪管（4 种尺寸）
@@ -55,6 +57,14 @@ public class UziStormwerkzElcanScopePlugin(
     private const string MosinBarrel220ThreadedId = "5bfd4cd60db834001c38f095"; // 220mm 锯短螺纹
     private const string MosinBarrel514Id = "5bfd4cbe0db834001b73449f"; // 514mm 卡宾
     private const string MosinBarrel730Id = "5ae09bff5acfc4001562219d"; // 730mm 标准
+
+    // PPSh-41 枪托槽兼容的枪托 / 握把。
+    private const string BenelliM3TelescopicStockId = "6259c3387d6aab70bc23a18d"; // Benelli M3 可伸缩枪托
+    private const string PkmWoodenStockId = "646371a9f2404ab67905c8e6"; // PKM 木制枪托
+    private const string PkZenitPt2StockId = "6492d7847363b8a52206bc52"; // Zenit PT-2 "Klassika" PK 机枪枪托
+    private const string PkpPolymerStockId = "6492e3a97df7d749100e29ee"; // PKP 聚合物枪托
+    private const string UltimaMp155PistolGripId = "606eef46232e5a31c233d500"; // Ultima MP-155 塑料手枪式握把
+    private const string Ks23MetalStockId = "5e848dc4e4dbc5266a4ec63d"; // KS-23 金属枪托（原版仅可装于 KS-23M 聚合物手枪式握把的 mod_stock 槽）
 
     // 日志中用于标识槽位承载者的短名。
     private const string MountLabel = "mount";
@@ -77,6 +87,9 @@ public class UziStormwerkzElcanScopePlugin(
 
             // PPSh-41 枪管槽：追加莫辛纳甘的全部尺寸枪管。
             AddItemIdsToSlot(items, Ppsh41Id, Ppsh41Label, BarrelSlotName, MosinBarrel200Id, MosinBarrel220ThreadedId, MosinBarrel514Id, MosinBarrel730Id);
+
+            // PPSh-41 枪托槽：追加 Benelli M3 可伸缩枪托、PKM / PKP 枪托、Ultima MP-155 握把与 KS-23 金属枪托。
+            AddItemIdsToSlot(items, Ppsh41Id, Ppsh41Label, StockSlotName, BenelliM3TelescopicStockId, PkmWoodenStockId, PkZenitPt2StockId, PkpPolymerStockId, UltimaMp155PistolGripId, Ks23MetalStockId);
         }
         catch (Exception ex)
         {

@@ -34,6 +34,18 @@ public class UziStormwerkzElcanScopePluginTests
         "5ae09bff5acfc4001562219d",
     ];
 
+    private const string Ppsh41StockId = "5ea03e9400685063ec28bfa4";
+
+    private static readonly string[] Ppsh41StockCompatIds =
+    [
+        "6259c3387d6aab70bc23a18d",
+        "646371a9f2404ab67905c8e6",
+        "6492d7847363b8a52206bc52",
+        "6492e3a97df7d749100e29ee",
+        "606eef46232e5a31c233d500",
+        "5e848dc4e4dbc5266a4ec63d",
+    ];
+
     private static UziStormwerkzElcanScopePlugin BuildPlugin(Dictionary<MongoId, TemplateItem> items)
     {
         var logger = new Mock<ISptLogger<UziStormwerkzElcanScopePlugin>>();
@@ -128,6 +140,24 @@ public class UziStormwerkzElcanScopePluginTests
         Assert.Contains(new MongoId(StormwerkzRailId), filter);
         Assert.Contains(new MongoId(Mp18Id), filter);
         Assert.Equal(2, filter.Count);
+    }
+
+    [Fact]
+    public async Task AddsStocksToPpsh41StockSlot()
+    {
+        var ppsh = ItemWithSlot("weapon_zis_ppsh41_762x25", "mod_stock", Ppsh41StockId);
+        var items = new Dictionary<MongoId, TemplateItem> { [new MongoId(Ppsh41Id)] = ppsh };
+
+        await BuildPlugin(items).OnLoadAsync(CancellationToken.None);
+
+        var filter = FilterOf(ppsh, "mod_stock");
+        Assert.Contains(new MongoId(Ppsh41StockId), filter);
+        foreach (var id in Ppsh41StockCompatIds)
+        {
+            Assert.Contains(new MongoId(id), filter);
+        }
+
+        Assert.Equal(1 + Ppsh41StockCompatIds.Length, filter.Count);
     }
 
     [Fact]

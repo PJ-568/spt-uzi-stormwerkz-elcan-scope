@@ -5,6 +5,7 @@ SPT 4.1.x（ServerMod，C#）插件：
 1. 让 UZI StormWerkz 瞄具基座（顶盖导轨）支持安装 ELCAN SpecterDR 1x/4x 瞄准镜及其 FDE 变体，以及 SIG Sauer BRAVO4 4x30 瞄准镜。
 2. 把 UZI StormWerkz 顶盖导轨和 MP-18 瞄具基座的 id 加进 CR 200DS 转轮手枪的 `mod_sight_front` 前准星槽 Filter 白名单。
 3. 把莫辛纳甘的 4 种尺寸枪管 id 加进 PPSh-41 冲锋枪的 `mod_barrel` 枪管槽 Filter 白名单。
+4. 把 Benelli M3 可伸缩枪托、PKM / PKP 枪托、Ultima MP-155 塑料手枪式握把与 KS-23 金属枪托的 id 加进 PPSh-41 冲锋枪的 `mod_stock` 枪托槽 Filter 白名单。
 
 ## 原理
 
@@ -18,11 +19,17 @@ SPT 4.1.x（ServerMod，C#）插件：
 | ELCAN SpecterDR 1x/4x FDE | `57aca93d2459771f2c7e26db` | mod_scope 槽允许的瞄具 |
 | SIG Sauer BRAVO4 4x30 瞄准镜 | `57adff4f24597737f373b6e6` | mod_scope 槽允许的瞄具 |
 | CR 200DS（Chiappa Rhino 200DS 9x19 revolver） | `624c2e8614da335f1e034d8c` | 目标武器（仅作为槽位承载者） |
-| PPSh-41 冲锋枪 | `5ea03f7400685063ec28bfa8` | `mod_barrel` 槽接收方（仅作为槽位承载者） |
+| PPSh-41 冲锋枪 | `5ea03f7400685063ec28bfa8` | `mod_barrel` / `mod_stock` 槽接收方（仅作为槽位承载者） |
 | 莫辛纳甘 200mm 锯短枪管 | `5bfd4cc90db834001d23e846` | PPSh-41 `mod_barrel` 白名单新增项 |
 | 莫辛纳甘 220mm 锯短螺纹枪管 | `5bfd4cd60db834001c38f095` | PPSh-41 `mod_barrel` 白名单新增项 |
 | 莫辛纳甘 514mm 卡宾枪管 | `5bfd4cbe0db834001b73449f` | PPSh-41 `mod_barrel` 白名单新增项 |
 | 莫辛纳甘 730mm 标准枪管 | `5ae09bff5acfc4001562219d` | PPSh-41 `mod_barrel` 白名单新增项 |
+| Benelli M3 可伸缩枪托 | `6259c3387d6aab70bc23a18d` | PPSh-41 `mod_stock` 白名单新增项 |
+| PKM 木制枪托 | `646371a9f2404ab67905c8e6` | PPSh-41 `mod_stock` 白名单新增项 |
+| Zenit PT-2 "Klassika" PK 机枪枪托 | `6492d7847363b8a52206bc52` | PPSh-41 `mod_stock` 白名单新增项 |
+| PKP 聚合物枪托 | `6492e3a97df7d749100e29ee` | PPSh-41 `mod_stock` 白名单新增项 |
+| Ultima MP-155 塑料手枪式握把 | `606eef46232e5a31c233d500` | PPSh-41 `mod_stock` 白名单新增项；自带 `mod_stock` 槽 |
+| KS-23 金属枪托 | `5e848dc4e4dbc5266a4ec63d` | PPSh-41 `mod_stock` 白名单新增项；原版仅可装于 KS-23M 聚合物手枪式握把的 `mod_stock` 槽 |
 
 ## 构建
 
@@ -97,4 +104,10 @@ systemctl --user restart pj568-spt-server
 [Info][Xidong.UZI.ELCAN.UziStormwerkzElcanScopePlugin] UziStormwerkzElcanScope: added '5bfd4cd60db834001c38f095' to slot 'mod_barrel' (weapon_zis_ppsh41_762x25)
 [Info][Xidong.UZI.ELCAN.UziStormwerkzElcanScopePlugin] UziStormwerkzElcanScope: added '5bfd4cbe0db834001b73449f' to slot 'mod_barrel' (weapon_zis_ppsh41_762x25)
 [Info][Xidong.UZI.ELCAN.UziStormwerkzElcanScopePlugin] UziStormwerkzElcanScope: added '5ae09bff5acfc4001562219d' to slot 'mod_barrel' (weapon_zis_ppsh41_762x25)
+[Info][Xidong.UZI.ELCAN.UziStormwerkzElcanScopePlugin] UziStormwerkzElcanScope: added '6259c3387d6aab70bc23a18d' to slot 'mod_stock' (weapon_zis_ppsh41_762x25)
+[Info][Xidong.UZI.ELCAN.UziStormwerkzElcanScopePlugin] UziStormwerkzElcanScope: added '646371a9f2404ab67905c8e6' to slot 'mod_stock' (weapon_zis_ppsh41_762x25)
+[Info][Xidong.UZI.ELCAN.UziStormwerkzElcanScopePlugin] UziStormwerkzElcanScope: added '6492d7847363b8a52206bc52' to slot 'mod_stock' (weapon_zis_ppsh41_762x25)
+[Info][Xidong.UZI.ELCAN.UziStormwerkzElcanScopePlugin] UziStormwerkzElcanScope: added '6492e3a97df7d749100e29ee' to slot 'mod_stock' (weapon_zis_ppsh41_762x25)
+[Info][Xidong.UZI.ELCAN.UziStormwerkzElcanScopePlugin] UziStormwerkzElcanScope: added '606eef46232e5a31c233d500' to slot 'mod_stock' (weapon_zis_ppsh41_762x25)
+[Info][Xidong.UZI.ELCAN.UziStormwerkzElcanScopePlugin] UziStormwerkzElcanScope: added '5e848dc4e4dbc5266a4ec63d' to slot 'mod_stock' (weapon_zis_ppsh41_762x25)
 ```
