@@ -17,7 +17,8 @@ namespace Xidong.UZI.ELCAN;
 ///   1. 让 UZI StormWerkz 瞄具基座的 mod_scope 槽支持安装 ELCAN SpecterDR 1x/4x 及其 FDE 变体，
 ///      以及 SIG Sauer BRAVO4 4x30 瞄准镜；
 ///   2. 让 StormWerkz 顶盖导轨可安装到 CR 200DS 转轮手枪的前准星槽；
-///   3. 让 CR 200DS 的前准星槽支持安装 MP-18 瞄具基座。
+///   3. 让 CR 200DS 的前准星槽支持安装 MP-18 瞄具基座；
+///   4. 让 PPSh-41 冲锋枪的枪管槽支持安装莫辛纳甘的全部 4 种尺寸枪管。
 ///
 /// 做法：往目标槽的 SlotFilter.Filter（HashSet&lt;MongoId&gt;）追加物品 id（幂等）。
 /// </summary>
@@ -27,6 +28,8 @@ public class UziStormwerkzElcanScopePlugin(
     TemplateTable templateTable) : IOnLoad
 {
     private const string ScopeSlotName = "mod_scope";
+    private const string SightSlotName = "mod_sight_front";
+    private const string BarrelSlotName = "mod_barrel";
 
     // UZI StormWerkz 瞄具基座（顶盖导轨）
     private const string StormwerkzTopCoverRailId = "6698c90829e062525d0ad8ad";
@@ -40,10 +43,23 @@ public class UziStormwerkzElcanScopePlugin(
 
     // CR 200DS 转轮手枪（Chiappa Rhino 200DS 9x19 revolver）—— 前准星槽。
     private const string Cr200DsId = "624c2e8614da335f1e034d8c";
-    private const string Cr200DsSightSlotName = "mod_sight_front";
 
     // MP-18 瞄具基座
     private const string Mp18ScopeBaseId = "61f804acfcba9556ea304cb8";
+
+    // PPSh-41 冲锋枪 —— 枪管槽。
+    private const string Ppsh41Id = "5ea03f7400685063ec28bfa8";
+
+    // 莫辛纳甘枪管（4 种尺寸）
+    private const string MosinBarrel200Id = "5bfd4cc90db834001d23e846"; // 200mm 锯短
+    private const string MosinBarrel220ThreadedId = "5bfd4cd60db834001c38f095"; // 220mm 锯短螺纹
+    private const string MosinBarrel514Id = "5bfd4cbe0db834001b73449f"; // 514mm 卡宾
+    private const string MosinBarrel730Id = "5ae09bff5acfc4001562219d"; // 730mm 标准
+
+    // 日志中用于标识槽位承载者的短名。
+    private const string MountLabel = "mount";
+    private const string Cr200DsLabel = "CR 200DS";
+    private const string Ppsh41Label = "PPSh-41";
 
     public Task OnLoadAsync(CancellationToken cancellationToken)
     {
@@ -53,8 +69,14 @@ public class UziStormwerkzElcanScopePlugin(
 
             Dictionary<MongoId, TemplateItem> items = templateTable.Items;
 
-            AddScopesToStormwerkzMount(items);
-            AddMountsToCr200DsSight(items);
+            // UZI StormWerkz 顶盖导轨的 mod_scope 槽：追加 SpecterDR 与 BRAVO4 瞄具。
+            AddItemIdsToSlot(items, StormwerkzTopCoverRailId, MountLabel, ScopeSlotName, SpecterDrId, SpecterDrFdeId, Bravo4Id);
+
+            // CR 200DS 前准星槽：追加 StormWerkz 顶盖导轨与 MP-18 瞄具基座。
+            AddItemIdsToSlot(items, Cr200DsId, Cr200DsLabel, SightSlotName, StormwerkzTopCoverRailId, Mp18ScopeBaseId);
+
+            // PPSh-41 枪管槽：追加莫辛纳甘的全部尺寸枪管。
+            AddItemIdsToSlot(items, Ppsh41Id, Ppsh41Label, BarrelSlotName, MosinBarrel200Id, MosinBarrel220ThreadedId, MosinBarrel514Id, MosinBarrel730Id);
         }
         catch (Exception ex)
         {
@@ -65,24 +87,29 @@ public class UziStormwerkzElcanScopePlugin(
     }
 
     /// <summary>
-    /// 往 UZI StormWerkz 顶盖导轨的 mod_scope 槽追加 SpecterDR 与 BRAVO4 瞄具 id。
+    /// 往 <paramref name="ownerId"/> 名为 <paramref name="slotName"/> 的槽的各 Filter 追加 <paramref name="itemIds"/>（幂等）。
     /// </summary>
-    private void AddScopesToStormwerkzMount(Dictionary<MongoId, TemplateItem> items)
+    private void AddItemIdsToSlot(
+        Dictionary<MongoId, TemplateItem> items,
+        string ownerId,
+        string ownerLabel,
+        string slotName,
+        params string[] itemIds)
     {
-        if (!items.TryGetValue(StormwerkzTopCoverRailId, out TemplateItem? mount))
+        if (!items.TryGetValue(ownerId, out TemplateItem? owner))
         {
-            logger.Warning($"UziStormwerkzElcanScope: mount id '{StormwerkzTopCoverRailId}' not found in Items");
+            logger.Warning($"UziStormwerkzElcanScope: {ownerLabel} id '{ownerId}' not found in Items");
             return;
         }
 
-        IEnumerable<Slot>? slots = mount.Properties?.Slots;
+        IEnumerable<Slot>? slots = owner.Properties?.Slots;
         if (slots is null)
         {
-            logger.Warning("UziStormwerkzElcanScope: mount has no slots");
+            logger.Warning($"UziStormwerkzElcanScope: {ownerLabel} has no slots");
             return;
         }
 
-        foreach (Slot slot in slots.Where(s => s is not null && string.Equals(s.Name, ScopeSlotName, StringComparison.OrdinalIgnoreCase)))
+        foreach (Slot slot in slots.Where(s => s is not null && string.Equals(s.Name, slotName, StringComparison.OrdinalIgnoreCase)))
         {
             IEnumerable<SlotFilter>? filters = slot.Properties?.Filters;
             if (filters is null)
@@ -92,43 +119,10 @@ public class UziStormwerkzElcanScopePlugin(
 
             foreach (SlotFilter filter in filters)
             {
-                AddToFilter(filter, SpecterDrId, mount, slot);
-                AddToFilter(filter, SpecterDrFdeId, mount, slot);
-                AddToFilter(filter, Bravo4Id, mount, slot);
-            }
-        }
-    }
-
-    /// <summary>
-    /// 把 StormWerkz 顶盖导轨和 MP-18 瞄具基座的 id 加进 CR 200DS 前准星槽的 Filter 白名单。
-    /// </summary>
-    private void AddMountsToCr200DsSight(Dictionary<MongoId, TemplateItem> items)
-    {
-        if (!items.TryGetValue(Cr200DsId, out TemplateItem? revolver))
-        {
-            logger.Warning($"UziStormwerkzElcanScope: CR 200DS id '{Cr200DsId}' not found in Items");
-            return;
-        }
-
-        IEnumerable<Slot>? slots = revolver.Properties?.Slots;
-        if (slots is null)
-        {
-            logger.Warning("UziStormwerkzElcanScope: CR 200DS has no slots");
-            return;
-        }
-
-        foreach (Slot slot in slots.Where(s => s is not null && string.Equals(s.Name, Cr200DsSightSlotName, StringComparison.OrdinalIgnoreCase)))
-        {
-            IEnumerable<SlotFilter>? filters = slot.Properties?.Filters;
-            if (filters is null)
-            {
-                continue;
-            }
-
-            foreach (SlotFilter filter in filters)
-            {
-                AddToFilter(filter, StormwerkzTopCoverRailId, revolver, slot);
-                AddToFilter(filter, Mp18ScopeBaseId, revolver, slot);
+                foreach (string itemId in itemIds)
+                {
+                    AddToFilter(filter, itemId, owner, slot);
+                }
             }
         }
     }
