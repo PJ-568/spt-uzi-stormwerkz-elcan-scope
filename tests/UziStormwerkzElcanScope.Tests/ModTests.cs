@@ -46,6 +46,10 @@ public class UziStormwerkzElcanScopePluginTests
         "5e848dc4e4dbc5266a4ec63d",
     ];
 
+    private const string Ppsh41DustCoverId = "5ea03e5009aa976f2e7a514b";
+    private const string HuxwrxHxQdId = "6a158e4abf497aade10030e0";
+    private const string HuxwrxHxQdTanId = "6a1eb32c6cd328ea90037455";
+
     private static UziStormwerkzElcanScopePlugin BuildPlugin(Dictionary<MongoId, TemplateItem> items)
     {
         var logger = new Mock<ISptLogger<UziStormwerkzElcanScopePlugin>>();
@@ -78,6 +82,12 @@ public class UziStormwerkzElcanScopePluginTests
             Properties = new TemplateItemProperties { Slots = [slot] },
         };
     }
+
+    private static TemplateItem ItemWithConflicts(string name) => new()
+    {
+        Name = name,
+        Properties = new TemplateItemProperties { ConflictingItems = [] },
+    };
 
     private static HashSet<MongoId> FilterOf(TemplateItem item, string slotName) =>
         item.Properties!.Slots!.Single(s => s.Name == slotName).Properties!.Filters!.Single().Filter!;
@@ -158,6 +168,27 @@ public class UziStormwerkzElcanScopePluginTests
         }
 
         Assert.Equal(1 + Ppsh41StockCompatIds.Length, filter.Count);
+    }
+
+    [Fact]
+    public async Task MakesPpsh41DustCoverConflictWithHuxwrxSuppressors()
+    {
+        var dustCover = ItemWithConflicts("PPSH-41 dust cover");
+        var black = ItemWithConflicts("HUXWRX HX-QD 7.62x51 sound suppressor");
+        var tan = ItemWithConflicts("HUXWRX HX-QD 7.62x51 sound suppressor (Tan)");
+        var items = new Dictionary<MongoId, TemplateItem>
+        {
+            [new MongoId(Ppsh41DustCoverId)] = dustCover,
+            [new MongoId(HuxwrxHxQdId)] = black,
+            [new MongoId(HuxwrxHxQdTanId)] = tan,
+        };
+
+        await BuildPlugin(items).OnLoadAsync(CancellationToken.None);
+
+        Assert.Contains(new MongoId(HuxwrxHxQdId), dustCover.Properties!.ConflictingItems!);
+        Assert.Contains(new MongoId(HuxwrxHxQdTanId), dustCover.Properties!.ConflictingItems!);
+        Assert.Contains(new MongoId(Ppsh41DustCoverId), black.Properties!.ConflictingItems!);
+        Assert.Contains(new MongoId(Ppsh41DustCoverId), tan.Properties!.ConflictingItems!);
     }
 
     [Fact]

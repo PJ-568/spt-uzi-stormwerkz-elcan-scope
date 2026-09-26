@@ -19,7 +19,8 @@ namespace Xidong.UZI.ELCAN;
 ///   2. 让 StormWerkz 顶盖导轨可安装到 CR 200DS 转轮手枪的前准星槽；
 ///   3. 让 CR 200DS 的前准星槽支持安装 MP-18 瞄具基座；
 ///   4. 让 PPSh-41 冲锋枪的枪管槽支持安装莫辛纳甘的全部 4 种尺寸枪管；
-///   5. 让 PPSh-41 冲锋枪的枪托槽支持安装 Benelli M3 可伸缩枪托、PKM / PKP 枪托、Ultima MP-155 塑料手枪式握把与 KS-23 金属枪托。
+///   5. 让 PPSh-41 冲锋枪的枪托槽支持安装 Benelli M3 可伸缩枪托、PKM / PKP 枪托、Ultima MP-155 塑料手枪式握把与 KS-23 金属枪托；
+///   6. 让 HUXWRX HX-QD 消音器（含黄褐色变体）与 PPSh-41 防尘盖互不兼容。
 ///
 /// 做法：往目标槽的 SlotFilter.Filter（HashSet&lt;MongoId&gt;）追加物品 id（幂等）。
 /// </summary>
@@ -66,6 +67,13 @@ public class UziStormwerkzElcanScopePlugin(
     private const string UltimaMp155PistolGripId = "606eef46232e5a31c233d500"; // Ultima MP-155 塑料手枪式握把
     private const string Ks23MetalStockId = "5e848dc4e4dbc5266a4ec63d"; // KS-23 金属枪托（原版仅可装于 KS-23M 聚合物手枪式握把的 mod_stock 槽）
 
+    // PPSh-41 防尘盖（mod_reciever 槽承载物品）。
+    private const string Ppsh41DustCoverId = "5ea03e5009aa976f2e7a514b";
+
+    // HUXWRX HX-QD 7.62x51 消音器（黑 / 黄褐色变体）—— 由 WTT-ContentBackport 注入。
+    private const string HuxwrxHxQdId = "6a158e4abf497aade10030e0";
+    private const string HuxwrxHxQdTanId = "6a1eb32c6cd328ea90037455";
+
     // 日志中用于标识槽位承载者的短名。
     private const string MountLabel = "mount";
     private const string Cr200DsLabel = "CR 200DS";
@@ -90,6 +98,9 @@ public class UziStormwerkzElcanScopePlugin(
 
             // PPSh-41 枪托槽：追加 Benelli M3 可伸缩枪托、PKM / PKP 枪托、Ultima MP-155 握把与 KS-23 金属枪托。
             AddItemIdsToSlot(items, Ppsh41Id, Ppsh41Label, StockSlotName, BenelliM3TelescopicStockId, PkmWoodenStockId, PkZenitPt2StockId, PkpPolymerStockId, UltimaMp155PistolGripId, Ks23MetalStockId);
+
+            // PPSh-41 防尘盖与 HUXWRX HX-QD 消音器互不兼容。
+            AddDustCoverSuppressorConflict(items);
         }
         catch (Exception ex)
         {
@@ -136,6 +147,49 @@ public class UziStormwerkzElcanScopePlugin(
                 {
                     AddToFilter(filter, itemId, owner, slot);
                 }
+            }
+        }
+    }
+
+    /// <summary>
+    /// 让 PPSh-41 防尘盖与 HUXWRX HX-QD 消音器（含黄褐色变体）互不兼容（幂等）。
+    /// 防尘盖为原版物品、必定存在；消音器由 WTT-ContentBackport 注入，若不在 Items 中则跳过
+    /// （防尘盖侧足以建立冲突，且避开了第三方 mod 的加载时序依赖）。
+    /// </summary>
+    private void AddDustCoverSuppressorConflict(Dictionary<MongoId, TemplateItem> items)
+    {
+        AddConflictingItems(items, Ppsh41DustCoverId, "PPSh-41 dust cover", HuxwrxHxQdId, HuxwrxHxQdTanId);
+        AddConflictingItems(items, HuxwrxHxQdId, "HUXWRX HX-QD", Ppsh41DustCoverId);
+        AddConflictingItems(items, HuxwrxHxQdTanId, "HUXWRX HX-QD (Tan)", Ppsh41DustCoverId);
+    }
+
+    /// <summary>
+    /// 往 <paramref name="ownerId"/> 的 ConflictingItems 追加 <paramref name="conflictIds"/>（幂等）。
+    /// </summary>
+    private void AddConflictingItems(
+        Dictionary<MongoId, TemplateItem> items,
+        string ownerId,
+        string ownerLabel,
+        params string[] conflictIds)
+    {
+        if (!items.TryGetValue(ownerId, out TemplateItem? owner))
+        {
+            logger.Debug($"UziStormwerkzElcanScope: {ownerLabel} id '{ownerId}' not in Items, skip conflicting items");
+            return;
+        }
+
+        owner.Properties ??= new TemplateItemProperties();
+        owner.Properties.ConflictingItems ??= new HashSet<MongoId>();
+
+        foreach (string conflictId in conflictIds)
+        {
+            if (owner.Properties.ConflictingItems.Add(conflictId))
+            {
+                logger.Info($"UziStormwerkzElcanScope: added conflicting item '{conflictId}' to '{ownerLabel}' ({owner.Name})");
+            }
+            else
+            {
+                logger.Debug($"UziStormwerkzElcanScope: conflicting item '{conflictId}' already on '{ownerLabel}' ({owner.Name})");
             }
         }
     }

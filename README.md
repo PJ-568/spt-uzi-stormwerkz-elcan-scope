@@ -6,10 +6,11 @@ SPT 4.1.x（ServerMod，C#）插件：
 2. 把 UZI StormWerkz 顶盖导轨和 MP-18 瞄具基座的 id 加进 CR 200DS 转轮手枪的 `mod_sight_front` 前准星槽 Filter 白名单。
 3. 把莫辛纳甘的 4 种尺寸枪管 id 加进 PPSh-41 冲锋枪的 `mod_barrel` 枪管槽 Filter 白名单。
 4. 把 Benelli M3 可伸缩枪托、PKM / PKP 枪托、Ultima MP-155 塑料手枪式握把与 KS-23 金属枪托的 id 加进 PPSh-41 冲锋枪的 `mod_stock` 枪托槽 Filter 白名单。
+5. 让 HUXWRX HX-QD 消音器（含黄褐色变体）与 PPSh-41 防尘盖互不兼容。
 
 ## 原理
 
-往目标槽的 `Slot.Properties.Filters[].Filter`（`HashSet<MongoId>`）追加物品 id。幂等：已存在则不重复添加。
+往目标槽的 `Slot.Properties.Filters[].Filter`（`HashSet<MongoId>`）追加物品 id；不兼容关系则往 `TemplateItem.Properties.ConflictingItems`（`HashSet<MongoId>`）追加物品 id。均幂等：已存在则不重复添加。
 
 | 物品 | id | 角色 |
 | --- | --- | --- |
@@ -30,6 +31,9 @@ SPT 4.1.x（ServerMod，C#）插件：
 | PKP 聚合物枪托 | `6492e3a97df7d749100e29ee` | PPSh-41 `mod_stock` 白名单新增项 |
 | Ultima MP-155 塑料手枪式握把 | `606eef46232e5a31c233d500` | PPSh-41 `mod_stock` 白名单新增项；自带 `mod_stock` 槽 |
 | KS-23 金属枪托 | `5e848dc4e4dbc5266a4ec63d` | PPSh-41 `mod_stock` 白名单新增项；原版仅可装于 KS-23M 聚合物手枪式握把的 `mod_stock` 槽 |
+| PPSh-41 防尘盖 | `5ea03e5009aa976f2e7a514b` | `mod_reciever` 槽承载物品；与 HUXWRX HX-QD 消音器互斥 |
+| HUXWRX HX-QD 7.62x51 消音器 | `6a158e4abf497aade10030e0` | 由 WTT-ContentBackport 注入；与 PPSh-41 防尘盖互斥 |
+| HUXWRX HX-QD 7.62x51 消音器（黄褐色） | `6a1eb32c6cd328ea90037455` | 由 WTT-ContentBackport 注入；与 PPSh-41 防尘盖互斥 |
 
 ## 构建
 
@@ -110,4 +114,8 @@ systemctl --user restart pj568-spt-server
 [Info][Xidong.UZI.ELCAN.UziStormwerkzElcanScopePlugin] UziStormwerkzElcanScope: added '6492e3a97df7d749100e29ee' to slot 'mod_stock' (weapon_zis_ppsh41_762x25)
 [Info][Xidong.UZI.ELCAN.UziStormwerkzElcanScopePlugin] UziStormwerkzElcanScope: added '606eef46232e5a31c233d500' to slot 'mod_stock' (weapon_zis_ppsh41_762x25)
 [Info][Xidong.UZI.ELCAN.UziStormwerkzElcanScopePlugin] UziStormwerkzElcanScope: added '5e848dc4e4dbc5266a4ec63d' to slot 'mod_stock' (weapon_zis_ppsh41_762x25)
+[Info][Xidong.UZI.ELCAN.UziStormwerkzElcanScopePlugin] UziStormwerkzElcanScope: added conflicting item '6a158e4abf497aade10030e0' to 'PPSh-41 dust cover' (reciever_ppsh_zis_ppsh41_std)
+[Info][Xidong.UZI.ELCAN.UziStormwerkzElcanScopePlugin] UziStormwerkzElcanScope: added conflicting item '6a1eb32c6cd328ea90037455' to 'PPSh-41 dust cover' (reciever_ppsh_zis_ppsh41_std)
+[Info][Xidong.UZI.ELCAN.UziStormwerkzElcanScopePlugin] UziStormwerkzElcanScope: added conflicting item '5ea03e5009aa976f2e7a514b' to 'HUXWRX HX-QD' ...
+[Info][Xidong.UZI.ELCAN.UziStormwerkzElcanScopePlugin] UziStormwerkzElcanScope: added conflicting item '5ea03e5009aa976f2e7a514b' to 'HUXWRX HX-QD (Tan)' ...
 ```
