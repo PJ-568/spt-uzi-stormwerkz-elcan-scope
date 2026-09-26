@@ -35,6 +35,14 @@ dotnet build -c Release
 
 产物：`bin/Release/UziStormwerkzElcanScope.dll`。
 
+## 测试
+
+单元测试位于 `tests/UziStormwerkzElcanScope.Tests/`，用最小物品/槽位夹具直接驱动插件的槽位注入，覆盖莫辛枪管注入、幂等，以及 ELCAN / CR 200DS 既有行为回归：
+
+```bash
+dotnet test tests/UziStormwerkzElcanScope.Tests/UziStormwerkzElcanScope.Tests.csproj
+```
+
 ## 提交钩子
 
 仓库自带 `.githooks/`（`commit-msg` 提交信息语法 + 排版检查，`pre-commit` 暂存文件排版检查），源自模板 `~/模板/project-repo/`。克隆后启用：
